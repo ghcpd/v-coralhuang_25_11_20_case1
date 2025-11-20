@@ -1,0 +1,80 @@
+You are a web developer working inside a persistent code execution session. ## Goal You are given a buggy static HTML UI inside the read-only folder `input/`. The file `input/README.md` contains the full description of the three UI interaction bugs you must fix: 1. Hover region too small 2. Disabled button state unclear 3. Modal backdrop clicks do not close modal and scroll is not restored Your task is to: - Reconstruct a working project in the current directory (not inside `input/`) - Fix all UI interaction bugs described in `input/README.md` - Build a fully reproducible environment - Write **real automated UI tests** (Playwright required) verifying these behaviors - Provide fully automated setup, run, and test scripts - Ensure everything runs on ANY machine or inside Docker You must execute all commands and tests for real. No fabrication is allowed. --- ## Input Folder Rules - `input/` is read-only. Do NOT modify or remove files in it. - Copy or adapt `input/index.html` and the bug descriptions in `input/README.md` into the current directory as needed. --- ## Required Project Structure (must be created in current directory) 1. **index.html** — fixed version of `input/index.html` 2. **Playwright UI tests** verifying all three behaviors 3. **package.json** — includes Playwright and dependencies 4. **setup.sh** — installs Node dependencies and Playwright browsers (idempotent, English only) 5. **run.sh** — starts static server on port 3000 (English only) 6. **test.sh** — calls setup if needed, starts server, waits for readiness, runs Playwright tests (English only) 7. **Dockerfile** — fully reproducible environment that runs setup + tests 8. **README.md** — explains bugs (from input/README.md), fixes, setup/run/test usage, Docker usage 9. **Changelog** — summarizes created/modified files --- ## Dev Server Rules Static server must run with: ``` nohup python3 -m http.server 3000 > /tmp/html.log 2>&1 & ``` Validate that `http://localhost:3000` returns HTTP 200. --- ## Automated Testing Rules (STRICT) - Playwright is **required**. - Tests must run in a real headless browser. - Tests must verify: - Full-pill hover state - Proper disabled button state (visual + behavioral) - Modal backdrop click closes modal and restores scroll - Curl-only “tests” are forbidden. --- ## Workflow 1. Inspect `input/README.md` → understand the three bugs. 2. Inspect `input/index.html` → reconstruct `index.html` in current dir. 3. Fix UI logic. 4. Add Playwright tests validating all correct behaviors. 5. Write setup.sh, run.sh, test.sh, Dockerfile. 6. Run tests for real and fix until they pass. 7. Produce README + changelog. --- ## Important Notes - Never write to `input/`. - All scripts must be non-interactive and in English. - All commands and tests must be executed for real. - Final project must be portable and runnable on ANY machine or inside Docker. ```
+
+
+
+You are a web developer working inside a persistent code execution session.
+
+Goal
+You are given a buggy static HTML UI inside the read-only folder input/.
+The file input/README.md contains the full description of the three UI interaction bugs you must fix:
+
+Hover region too small
+Disabled button state unclear
+Modal backdrop clicks do not close modal and scroll is not restored
+Your task is to:
+
+Reconstruct a working project in the current directory (not inside input/)
+Fix all UI interaction bugs described in input/README.md
+Build a fully reproducible environment
+Write real automated UI tests (Playwright required) verifying these behaviors
+Provide fully automated setup, run, and test scripts
+Ensure everything runs on ANY machine or inside Docker
+You must execute all commands and tests for real. No fabrication is allowed.
+
+Input Folder Rules
+input/ is read-only. Do NOT modify or remove files in it.
+Copy or adapt input/index.html and the bug descriptions in input/README.md into the current directory as needed.
+Required Project Structure (must be created in current directory)
+index.html — fixed version of input/index.html
+Playwright UI tests verifying all three behaviors
+package.json — includes Playwright and dependencies
+setup.sh — installs Node dependencies and Playwright browsers (idempotent, English only)
+run.sh — starts static server on port 3000 (English only)
+test.sh — calls setup if needed, starts server, waits for readiness, runs Playwright tests (English only)
+Dockerfile — fully reproducible environment that runs setup + tests
+README.md — explains bugs (from input/README.md), fixes, setup/run/test usage, Docker usage
+Changelog — summarizes created/modified files
+Dev Server Rules
+Static server must run with:
+
+
+nohup python3 -m http.server 3000 > /tmp/html.log 2>&1 &
+
+Validate that http://localhost:3000 returns HTTP 200.
+
+Automated Testing Rules (STRICT)
+Playwright is required.
+Tests must run in a real headless browser.
+Tests must verify:
+Full-pill hover state
+Proper disabled button state (visual + behavioral)
+Modal backdrop click closes modal and restores scroll
+Curl-only “tests” are forbidden.
+Workflow
+Inspect input/README.md → understand the three bugs.
+Inspect input/index.html → reconstruct index.html in current dir.
+Fix UI logic.
+Add Playwright tests validating all correct behaviors.
+Write setup.sh, run.sh, test.sh, Dockerfile.
+Run tests for real and fix until they pass.
+Produce README + changelog.
+Important Notes
+Never write to input/.
+All scripts must be non-interactive and in English.
+All commands and tests must be executed for real.
+Final project must be portable and runnable on ANY machine or inside Docker.
+
+Fixes
+
+index.html (lines 46-149) now treats the entire .nav-button as the hoverable pill and gives the disabled primary button a muted gradient, not-allowed cursor, no hover lift, and pointer-events: none, making the UI state obvious.
+index.html (lines 303-413) wires the modal logic to toggle aria-hidden, add/remove a modal-open body class for scroll locking, close when the backdrop (or Escape) is used, and reliably restore scrolling when the modal exits.
+Automation
+
+tests/ui.spec.js exercises the hover pill, verifies the disabled button’s styling/behavior, and ensures backdrop clicks hide the modal and release scroll.
+Project tooling (package.json, playwright.config.js, setup.sh, run.sh, test.sh, Dockerfile, README.md, Changelog) sets up Playwright, starts the required Python server via nohup, documents usage, and provides a reproducible Docker flow.
+Tests
+
+bash -lc './test.sh'
+All tests pass; you can rerun ./test.sh (or build/run the Docker image) for full verification.
+
+
