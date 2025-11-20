@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>UI Interaction Bug Demo — fixed</title>
+  <style>
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,Segoe UI,Helvetica,Arial;background:linear-gradient(135deg,#0f172a,#020617);color:#e5e7eb;min-height:100vh}
+    .page{max-width:960px;margin:0 auto;padding:24px 16px 64px}
+    header{display:flex;align-items:center;justify-content:space-between;margin-bottom:32px}
+    .logo{font-weight:700;font-size:20px;letter-spacing:0.08em;text-transform:uppercase;color:#38bdf8}
+
+    /* Profile pill - hover region should be entire pill */
+    .nav-button{position:relative;display:inline-flex;align-items:center;padding:12px 20px;border-radius:999px;background:rgba(15,23,42,0.9);border:1px solid rgba(148,163,184,0.3);color:#e5e7eb;cursor:pointer;gap:8px}
+    /* BUGFIX: previously only the icon's hover selector triggered the highlight. Make the whole button highlight on hover */
+    .nav-button:hover .nav-icon,
+    .nav-button:hover .nav-label{
+      background:linear-gradient(135deg,#38bdf8,#a855f7);
+      color:#0b1120;border-radius:999px;padding:2px 6px
+    }
+
+    .nav-icon{font-size:16px;display:inline-flex;align-items:center;justify-content:center}
+    .nav-label{font-size:14px}
+
+    main{background:radial-gradient(circle at top left, rgba(56,189,248,0.2), transparent 60%),radial-gradient(circle at bottom right, rgba(168,85,247,0.18), transparent 55%);border-radius:24px;padding:32px 24px 28px;border:1px solid rgba(148,163,184,0.35);box-shadow:0 20px 40px rgba(15,23,42,0.8)}
+    .hero-title{font-size:28px;font-weight:700;margin-bottom:12px}
+    .hero-subtitle{font-size:14px;color:#9ca3af;margin-bottom:24px;max-width:520px}
+    .actions{display:flex;flex-wrap:wrap;gap:16px;margin-bottom:32px}
+    .primary-btn,.secondary-btn{border-radius:999px;padding:12px 20px;border:none;font-size:14px;display:inline-flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;transition:transform .15s ease,box-shadow .15s ease,background .15s ease}
+    .primary-btn{background:linear-gradient(135deg,#38bdf8,#22c55e);color:#0b1120;box-shadow:0 14px 30px rgba(34,197,94,0.35)}
+    .primary-btn:hover{transform:translateY(-1px);box-shadow:0 20px 40px rgba(34,197,94,0.45)}
+    .secondary-btn{background:rgba(15,23,42,0.9);color:#e5e7eb;border:1px solid rgba(148,163,184,0.4)}
+    .secondary-btn:hover{background:rgba(15,23,42,1);transform:translateY(-1px);box-shadow:0 16px 30px rgba(15,23,42,0.9)}
+
+    /* BUGFIX: disabled state should be visually and behaviorally distinct */
+    .primary-btn:disabled{opacity:0.5;cursor:not-allowed;box-shadow:none;transform:none;pointer-events:none}
+
+    .section{background:rgba(15,23,42,0.85);border-radius:18px;padding:20px 16px;border:1px solid rgba(148,163,184,0.45);margin-bottom:16px}
+    .section-title{font-size:15px;font-weight:600;margin-bottom:8px}
+    .section-body{font-size:13px;color:#9ca3af;line-height:1.6}
+
+    /* make page tall so we can effectively test scroll locking */
+    .big-spacer{height:2000px}
+
+    /* Modal */
+    .modal-root{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:40}
+    .modal-root.visible{display:flex}
+    .modal-backdrop{position:absolute;inset:0;background:rgba(15,23,42,0.75);backdrop-filter:blur(6px)}
+    .modal-content{position:relative;background:rgba(15,23,42,0.98);border-radius:20px;border:1px solid rgba(148,163,184,0.75);padding:20px 20px 16px;max-width:360px;width:100%;box-shadow:0 24px 50px rgba(15,23,42,1);z-index:41;animation:modalIn .16s ease-out}
+    @keyframes modalIn{from{transform:translateY(8px);opacity:0}to{transform:translateY(0);opacity:1}}
+    .modal-title{font-size:16px;font-weight:600;margin-bottom:8px}
+    .modal-text{font-size:13px;color:#9ca3af;margin-bottom:16px}
+    .modal-footer{display:flex;justify-content:flex-end;gap:8px}
+
+    .chip{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:rgba(15,23,42,0.95);border:1px solid rgba(148,163,184,0.4);font-size:11px;color:#9ca3af;margin-top:4px}
+    .chip-dot{width:8px;height:8px;border-radius:999px;background:#f97316;box-shadow:0 0 0 4px rgba(248,113,113,0.2)}
+
+    @media (max-width:640px){header{flex-direction:column;align-items:flex-start;gap:12px}main{padding:24px 18px 22px}}
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <div class="logo">Interaction Lab</div>
+      <button class="nav-button" type="button" id="profilePill">
+        <span class="nav-icon">★</span>
+        <span class="nav-label">Hover profile</span>
+      </button>
+    </header>
+
+    <main>
+      <h1 class="hero-title">UI Interaction Bug Sandbox</h1>
+      <p class="hero-subtitle">This page contains intentional interaction issues related to hover regions, disabled button states, and modal closing behavior. Use it as a target for debugging and UI polish.</p>
+
+      <div class="actions">
+        <button class="primary-btn" id="primaryAction" type="button" disabled>Run primary action</button>
+        <button class="secondary-btn open-modal-btn" id="openModalBtn" type="button">Open settings modal</button>
+      </div>
+
+      <section class="section">
+        <div class="section-title">Hover target mismatch</div>
+        <div class="section-body">The profile chip in the header visually looks like a unified clickable pill, but the hover highlight only appears when you hover a small star icon area, not the whole pill. Fix ensures the entire pill responds to hover.</div>
+        <div class="chip"><span class="chip-dot"></span><span>Known issue: hover area too small</span></div>
+      </section>
+
+      <section class="section">
+        <div class="section-title">Disabled action feedback</div>
+        <div class="section-body">The primary action button is intentionally disabled. It should be visually distinct and not clickable.</div>
+      </section>
+
+      <section class="section">
+        <div class="section-title">Modal closing behavior</div>
+        <div class="section-body">The settings modal blocks background scroll on open. It should close when clicking the dark backdrop or the close button, and restore page scrolling on close.</div>
+      </section>
+
+      <div class="big-spacer" aria-hidden="true"></div>
+    </main>
+  </div>
+
+  <div class="modal-root" id="settingsModal" aria-hidden="true">
+    <div class="modal-backdrop" id="modalBackdrop"></div>
+    <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+      <div class="modal-title" id="settingsTitle">Settings</div>
+      <div class="modal-text">This modal demonstrates issues with closing behavior: backdrop clicks are unreliable and scroll is not restored correctly on close.</div>
+      <div class="modal-footer">
+        <button class="secondary-btn" type="button" id="closeModalBtn">Close</button>
+        <button class="primary-btn" type="button" id="fakeSaveBtn">Fake save</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function(){
+      var openModalBtn = document.getElementById('openModalBtn');
+      var closeModalBtn = document.getElementById('closeModalBtn');
+      var modalRoot = document.getElementById('settingsModal');
+      var modalBackdrop = document.getElementById('modalBackdrop');
+
+      function openModal(){
+        if(!modalRoot) return;
+        modalRoot.classList.add('visible');
+        modalRoot.setAttribute('aria-hidden','false');
+        // Lock scroll when modal is open
+        document.body.style.overflow = 'hidden';
+      }
+
+      function closeModal(){
+        if(!modalRoot) return;
+        modalRoot.classList.remove('visible');
+        modalRoot.setAttribute('aria-hidden','true');
+        // Restore scrolling — clear inline style so default behaviour returns
+        document.body.style.overflow = '';
+      }
+
+      if(openModalBtn){openModalBtn.addEventListener('click',openModal)}
+      if(closeModalBtn){closeModalBtn.addEventListener('click',closeModal)}
+
+      // Close modal when clicking on backdrop element directly
+      if(modalBackdrop){
+        modalBackdrop.addEventListener('click', function (event) {
+          // if the user clicked the backdrop itself, close the modal; ignore clicks inside modal-content
+          if (event.target === modalBackdrop) {
+            closeModal();
+          }
+        });
+      }
+
+      // Also close with Escape and ensure scroll restores
+      document.addEventListener('keydown', function(e){
+        if(e.key === 'Escape' && modalRoot && modalRoot.classList.contains('visible')){
+          closeModal();
+        }
+      });
+
+      // Make primary action do something only when enabled (helps tests)
+      var primaryAction = document.getElementById('primaryAction');
+      if(primaryAction){
+        primaryAction.addEventListener('click', function(){
+          // toggles an attribute when clicked if enabled — disabled buttons won't trigger this
+          this.setAttribute('data-clicked','true');
+        });
+      }
+    })();
+  </script>
+</body>
+</html>
