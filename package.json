@@ -1,0 +1,13 @@
+{
+  "name": "ui-interaction-bug-fix",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "setup": "bash setup.sh",
+    "start": "bash run.sh",
+    "test": "bash test.sh"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.43.0"
+  }
+}
