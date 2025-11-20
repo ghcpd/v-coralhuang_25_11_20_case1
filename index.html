@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>UI Interaction Bug Demo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      color-scheme: dark;
+    }
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: linear-gradient(135deg, #0f172a, #020617);
+      color: #e5e7eb;
+      min-height: 100vh;
+    }
+
+    .page {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 24px 16px 64px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 32px;
+    }
+
+    .logo {
+      font-weight: 700;
+      font-size: 20px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #38bdf8;
+    }
+
+    .nav-button {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      padding: 12px 20px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      color: #e5e7eb;
+      cursor: pointer;
+      gap: 8px;
+      transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+      outline: none;
+    }
+
+    .nav-button:hover,
+    .nav-button:focus-visible {
+      background: linear-gradient(135deg, #38bdf8, #a855f7);
+      color: #0b1120;
+      border-color: transparent;
+      box-shadow: 0 12px 28px rgba(56, 189, 248, 0.35);
+      transform: translateY(-1px);
+    }
+
+    .nav-icon {
+      font-size: 16px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .nav-label {
+      font-size: 14px;
+    }
+
+    button:focus-visible {
+      outline: 2px solid #38bdf8;
+      outline-offset: 3px;
+    }
+
+    main {
+      background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.2), transparent 60%),
+                  radial-gradient(circle at bottom right, rgba(168, 85, 247, 0.18), transparent 55%);
+      border-radius: 24px;
+      padding: 32px 24px 28px;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.8);
+    }
+
+    .hero-title {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .hero-subtitle {
+      font-size: 14px;
+      color: #9ca3af;
+      margin-bottom: 24px;
+      max-width: 520px;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .primary-btn,
+    .secondary-btn {
+      border-radius: 999px;
+      padding: 12px 20px;
+      border: none;
+      font-size: 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+    }
+
+    .primary-btn {
+      background: linear-gradient(135deg, #38bdf8, #22c55e);
+      color: #0b1120;
+      box-shadow: 0 14px 30px rgba(34, 197, 94, 0.35);
+    }
+
+    .primary-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 20px 40px rgba(34, 197, 94, 0.45);
+    }
+
+    .secondary-btn {
+      background: rgba(15, 23, 42, 0.9);
+      color: #e5e7eb;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+    }
+
+    .secondary-btn:hover {
+      background: rgba(15, 23, 42, 1);
+      transform: translateY(-1px);
+      box-shadow: 0 16px 30px rgba(15, 23, 42, 0.9);
+    }
+
+ 
+    .primary-btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      box-shadow: none;
+      transform: none;
+      filter: grayscale(0.2) brightness(0.9);
+      pointer-events: none;
+    }
+
+    .primary-btn:disabled:hover {
+      box-shadow: none;
+      transform: none;
+    }
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      font-size: 12px;
+      color: #9ca3af;
+      margin-bottom: 20px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: #f97316;
+      box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.2);
+    }
+
+    .status-pill.enabled .status-dot {
+      background: #22c55e;
+      box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.2);
+    }
+
+    .toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      margin-top: 12px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .toggle input {
+      accent-color: #38bdf8;
+      width: 18px;
+      height: 18px;
+    }
+
+    .section {
+      background: rgba(15, 23, 42, 0.85);
+      border-radius: 18px;
+      padding: 20px 16px;
+      border: 1px solid rgba(148, 163, 184, 0.45);
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .section-body {
+      font-size: 13px;
+      color: #9ca3af;
+      line-height: 1.6;
+    }
+
+    .open-modal-btn {
+      margin-top: 12px;
+    }
+
+    /* Modal */
+
+    body.modal-open {
+      overflow: hidden;
+    }
+
+    .modal-root {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 40;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.18s ease;
+    }
+
+    .modal-root.visible {
+      display: flex;
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(6px);
+    }
+
+    .modal-content {
+      position: relative;
+      background: rgba(15, 23, 42, 0.98);
+      border-radius: 20px;
+      border: 1px solid rgba(148, 163, 184, 0.75);
+      padding: 20px 20px 16px;
+      max-width: 360px;
+      width: 100%;
+      box-shadow: 0 24px 50px rgba(15, 23, 42, 1);
+      z-index: 41;
+      animation: modalIn 0.2s ease-out;
+    }
+
+    @keyframes modalIn {
+      from {
+        transform: translateY(8px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid rgba(148, 163, 184, 0.45);
+      color: #e5e7eb;
+      padding: 12px 16px;
+      border-radius: 12px;
+      box-shadow: 0 18px 36px rgba(15, 23, 42, 0.75);
+      transform: translateY(20px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    .modal-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .modal-text {
+      font-size: 13px;
+      color: #9ca3af;
+      margin-bottom: 16px;
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      font-size: 11px;
+      color: #9ca3af;
+      margin-top: 4px;
+    }
+
+    .chip-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: #f97316;
+      box-shadow: 0 0 0 4px rgba(248, 113, 113, 0.2);
+    }
+
+    @media (max-width: 640px) {
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+      }
+
+      main {
+        padding: 24px 18px 22px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <div class="logo">Interaction Lab</div>
+      <button class="nav-button" type="button" aria-label="Open profile">
+        <span class="nav-icon">★</span>
+        <span class="nav-label">Hover profile</span>
+      </button>
+    </header>
+
+    <main>
+      <h1 class="hero-title">UI Interaction Bug Sandbox</h1>
+      <p class="hero-subtitle">
+        This page contains intentional interaction issues related to hover regions, disabled button states,
+        and modal closing behavior. Use it as a target for debugging and UI polish.
+      </p>
+
+      <div class="actions">
+
+        <button class="primary-btn" id="primaryAction" type="button" disabled aria-disabled="true">
+          <span>Run primary action</span>
+        </button>
+
+        <button class="secondary-btn open-modal-btn" id="openModalBtn" type="button">
+          <span>Open settings modal</span>
+        </button>
+      </div>
+
+      <div id="primaryStatus" class="status-pill" role="status" aria-live="polite">
+        <span class="status-dot"></span>
+        <span>Primary action is disabled</span>
+      </div>
+
+      <section class="section">
+        <div class="section-title">Hover target mismatch</div>
+        <div class="section-body">
+          The profile chip in the header visually looks like a unified clickable pill, but the hover highlight
+          only appears when you hover a small star icon area, not the whole pill.
+        </div>
+        <div class="chip">
+          <span class="chip-dot"></span>
+          <span>Known issue: hover area too small</span>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-title">Disabled action feedback</div>
+        <div class="section-body">
+          The primary action button is currently disabled. However, its appearance is almost identical to an
+          enabled state and still uses a pointer cursor, making it hard to distinguish and easy to misinterpret
+          as clickable.
+        </div>
+        <label class="toggle" for="togglePrimary">
+          <input type="checkbox" id="togglePrimary" aria-controls="primaryAction" />
+          Enable primary action
+        </label>
+      </section>
+
+      <section class="section">
+        <div class="section-title">Modal closing behavior</div>
+        <div class="section-body">
+          The settings modal blocks background scroll on open. It should close when clicking the dark backdrop
+          or the close button, and it should restore page scrolling when closed. In this version, clicking the
+          backdrop does not close the modal correctly and scroll locking is not fully restored.
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal-root" id="settingsModal" aria-hidden="true">
+    <div class="modal-backdrop" id="modalBackdrop" role="presentation"></div>
+    <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+      <div class="modal-title" id="settingsTitle">Settings</div>
+      <div class="modal-text">
+        This modal demonstrates issues with closing behavior:
+        backdrop clicks are unreliable and scroll is not restored correctly on close.
+      </div>
+      <div class="modal-footer">
+        <button class="secondary-btn" type="button" id="closeModalBtn">
+          Close
+        </button>
+        <button class="primary-btn" type="button" id="fakeSaveBtn">
+          Fake save
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    (function () {
+      var openModalBtn = document.getElementById("openModalBtn");
+      var closeModalBtn = document.getElementById("closeModalBtn");
+      var modalRoot = document.getElementById("settingsModal");
+      var modalBackdrop = document.getElementById("modalBackdrop");
+      var primaryActionBtn = document.getElementById("primaryAction");
+      var primaryStatus = document.getElementById("primaryStatus");
+      var togglePrimary = document.getElementById("togglePrimary");
+      var toast = document.getElementById("toast");
+      var restoringOverflow = "";
+
+      function isModalVisible() {
+        return modalRoot && modalRoot.classList.contains("visible");
+      }
+
+      function openModal() {
+        if (!modalRoot) return;
+        modalRoot.classList.add("visible");
+        modalRoot.setAttribute("aria-hidden", "false");
+        restoringOverflow = document.body.style.overflow || "";
+        document.body.classList.add("modal-open");
+        if (openModalBtn) {
+          openModalBtn.setAttribute("aria-expanded", "true");
+        }
+        // focus the close button for accessibility
+        if (closeModalBtn) {
+          closeModalBtn.focus();
+        }
+      }
+
+      function closeModal() {
+        if (!modalRoot) return;
+        modalRoot.classList.remove("visible");
+        modalRoot.setAttribute("aria-hidden", "true");
+        document.body.classList.remove("modal-open");
+        document.body.style.overflow = restoringOverflow;
+        if (openModalBtn) {
+          openModalBtn.setAttribute("aria-expanded", "false");
+          openModalBtn.focus();
+        }
+      }
+
+      function showToast(message) {
+        if (!toast) return;
+        toast.textContent = message;
+        toast.classList.add("show");
+        if (toast._timeoutId) {
+          clearTimeout(toast._timeoutId);
+        }
+        toast._timeoutId = setTimeout(function () {
+          toast.classList.remove("show");
+        }, 2500);
+      }
+
+      if (openModalBtn) {
+        openModalBtn.addEventListener("click", openModal);
+        openModalBtn.setAttribute("aria-expanded", "false");
+      }
+
+      if (closeModalBtn) {
+        closeModalBtn.addEventListener("click", closeModal);
+      }
+
+      if (modalRoot && modalBackdrop) {
+        modalRoot.addEventListener("click", function (event) {
+          if (event.target === modalBackdrop || event.target === modalRoot) {
+            closeModal();
+          }
+        });
+      }
+
+      document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape" && isModalVisible()) {
+          closeModal();
+        }
+      });
+
+      if (togglePrimary && primaryActionBtn && primaryStatus) {
+        togglePrimary.addEventListener("change", function () {
+          var enabled = togglePrimary.checked;
+          primaryActionBtn.disabled = !enabled;
+          primaryActionBtn.setAttribute("aria-disabled", (!enabled).toString());
+          primaryStatus.classList.toggle("enabled", enabled);
+          var statusDot = primaryStatus.querySelector(".status-dot");
+          if (statusDot) {
+            statusDot.classList.toggle("enabled", enabled);
+          }
+          var message = enabled ? "Primary action is enabled" : "Primary action is disabled";
+          primaryStatus.lastElementChild.textContent = message;
+        });
+      }
+
+      if (primaryActionBtn) {
+        primaryActionBtn.addEventListener("click", function () {
+          if (primaryActionBtn.disabled) return;
+          showToast("Primary action executed!");
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

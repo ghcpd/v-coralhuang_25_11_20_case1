@@ -1,0 +1,216 @@
+User: You are a web developer working inside a persistent code execution session.
+
+## Goal
+Follow the user request to build or modify a web application or static webpage.
+Work iteratively: plan → edit → run → verify → refine.
+Keep each code change minimal, explain what you did, and ensure the app runs successfully after each step.
+
+**You must execute all tests and commands for real. You are strictly forbidden from fabricating test results, skipping execution steps, or pretending that code was run. Always perform actual execution and report the real outcome.**
+
+---
+
+## Input Folder Policy
+- The user may provide reference files inside a folder named `input/` located under the current working directory.
+- Treat everything under `input/` as **read-only**:
+  - Do NOT modify, delete, or overwrite any file in `input/`.
+  - Do NOT move files out of `input/`.
+- When you need to use files from `input/`, copy or adapt them into the **current working directory** (the project root for your work).
+- All implementation, debugging, and refactoring must be done on files **outside** of `input/`.
+
+---
+
+## Workspace
+- Treat the **current working directory** as the project root.
+- Ignore any `.git` folder or content.
+- Detect project type:
+  - If the user requests a Next.js / React / TypeScript application → treat it as a Next.js project.
+  - If the user requests a pure HTML/CSS/JS page → treat it as a static HTML project.
+
+---
+
+## Entrypoints
+- Next.js: `app/page.tsx` (create if missing).
+- Static HTML: `index.html` (create if missing).
+
+If similar content exists under `input/`, copy or adapt it into these entrypoints as needed (but never modify files inside `input/`).
+
+---
+
+## Dev Server Rules
+
+### For Next.js projects
+- Start the dev server from the current directory, e.g.:
+  `nohup yarn dev -p 3000 > /tmp/nextjs.log 2>&1 &`
+- Verify `http://localhost:3000` returns HTTP 200.
+- Debug using:
+  `tail -n 200 /tmp/nextjs.log`
+- Fix issues and restart until successful.
+
+### For Static HTML projects
+- Start a simple server from the current directory:
+  `nohup python3 -m http.server 3000 > /tmp/html_server.log 2>&1 &`
+- Verify the page loads on port 3000.
+- Tail logs when needed:
+  `tail -n 100 /tmp/html_server.log`
+
+---
+
+## Testing & Reusable Environment
+
+### One-click test
+- Provide a one-click test script, e.g. `test.sh`, placed in the current directory.
+- Requirements:
+  - Use **only English** inside the script (comments + outputs).
+  - Must be idempotent.
+  - Start or assume a server on port `3000` or `$PORT`.
+  - Perform a real HTTP GET check with `curl`.
+  - Exit non-zero on failure.
+
+### Environment reuse
+- Prefer standard tools (Node, npm/yarn, Python).
+- Avoid interactive operations.
+- If dependencies are needed, document installation steps and commands clearly in the README.
+
+---
+
+## Documentation (README)
+Create or regenerate a `README.md` in the **current directory** (never inside `input/`), containing:
+- Project purpose and short description.
+- Setup instructions.
+- Dev server start command.
+- Instructions for running the one-click test.
+- Notes, limitations, or relevant environment details.
+
+Whenever project behavior changes, regenerate and update `README.md` accordingly.
+
+---
+
+## Step-by-Step Method
+
+1. **Understand & Plan**
+   - Restate the user’s goal.
+   - Decide the project type based on user input.
+   - Inspect `input/` (read-only).
+   - Plan how to adapt its contents into the current working directory.
+
+2. **Setup / Inspection**
+   - Inspect the current directory.
+   - Initialize or repair project structure as needed.
+   - Copy or reconstruct files from `input/` without modifying `input/`.
+
+3. **Implementation**
+   - Make incremental and minimal changes.
+   - Explain each modification and its purpose.
+   - Ensure all code is syntactically valid and builds.
+
+4. **Run & Verify**
+   - Start the correct server.
+   - Validate `http://localhost:3000`.
+   - Fix errors, re-run, verify.
+   - Remember: **you must actually run tests and commands; fabricating output is strictly forbidden.**
+
+5. **UI/UX**
+   - Clean, modern design.
+   - Consistent spacing and visual hierarchy.
+   - Responsive and accessible.
+   - Provide interaction feedback (hover, loading, error states).
+   - Include sensible animations.
+   - Ensure robust layout under edge cases.
+
+6. **Deliverables**
+   - Fully working web application in the current directory.
+   - One-click `test.sh`.
+   - Updated `README.md`.
+   - A clear changelog summarizing created/modified files and testing instructions.
+
+---
+
+## Important Notes
+- Never modify files under `input/`.
+- Always operate inside the current working directory.
+- Always run real commands and tests—**no simulation or fabrication is allowed**.
+- Analyze first, then implement, with minimal safe steps.
+
+
+GitHub Copilot: Created 6 todos
+
+Starting: *Inspect input files* (1/6)
+
+Read [](file:///c%3A/Bug_Bash/25_11_20/v-coralhuang_25_11_20_case1)
+
+Read [](file:///c%3A/Bug_Bash/25_11_20/v-coralhuang_25_11_20_case1/input/index.html)
+
+Read [](file:///c%3A/Bug_Bash/25_11_20/v-coralhuang_25_11_20_case1/input/README.md)
+
+Read [](file:///c%3A/Bug_Bash/25_11_20/v-coralhuang_25_11_20_case1/input/test.sh)
+
+Completed: *Inspect input files* (1/6)
+
+Starting: *Set up project structure* (2/6)
+
+Created [](file:///c%3A/Bug_Bash/25_11_20/v-coralhuang_25_11_20_case1/index.html)
+
+Completed: *Set up project structure* (2/6)
+
+Using "Apply Patch"
+
+
+```
+
+```
+
+
+Starting: *Enhance UI/UX* (3/6)
+
+Read [](file:///c%3A/Bug_Bash/25_11_20/v-coralhuang_25_11_20_case1/index.html)
+
+Completed: *Enhance UI/UX* (3/6)
+
+Starting: *Create test script* (4/6)
+
+Created [](file:///c%3A/Bug_Bash/25_11_20/v-coralhuang_25_11_20_case1/test.sh)
+
+Completed: *Create test script* (4/6)
+
+Starting: *Update README* (5/6)
+
+Created [](file:///c%3A/Bug_Bash/25_11_20/v-coralhuang_25_11_20_case1/README.md)
+
+Completed: *Update README* (5/6)
+
+Starting: *Run server and verify* (6/6)
+
+Ran terminal command: Push-Location "C:\Bug_Bash\25_11_20\v-coralhuang_25_11_20_case1"; $LOG = Join-Path $env:TEMP 'html_server.log'; $server = Start-Process python -ArgumentList '-m','http.server','3000' -PassThru -RedirectStandardOutput $LOG -RedirectStandardError $LOG; Start-Sleep 2; Invoke-WebRequest -UseBasicParsing http://localhost:3000/ | Select-Object StatusCode | Format-List
+
+Ran terminal command: Push-Location "C:\Bug_Bash\25_11_20\v-coralhuang_25_11_20_case1"; $LOG = Join-Path $env:TEMP 'html_server.log'; $ERRLOG = Join-Path $env:TEMP 'html_server_err.log'; $server = Start-Process python -ArgumentList '-m','http.server','3000' -PassThru -RedirectStandardOutput $LOG -RedirectStandardError $ERRLOG; Start-Sleep 3; Invoke-WebRequest -UseBasicParsing http://localhost:3000/ | Select-Object StatusCode | Format-List
+
+Ran terminal command: if ($server) { Stop-Process -Id $server.Id -Force; Write-Output "Stopped server PID $($server.Id)" } else { Write-Output "No server process to stop" }
+
+Ran terminal command: Push-Location "C:\Bug_Bash\25_11_20\v-coralhuang_25_11_20_case1"; bash test.sh
+
+Continue to iterate?
+[object Object]
+
+Made changes.
+
+User: @agent Continue: "Continue to iterate?"
+
+GitHub Copilot: Completed: *Run server and verify* (6/6)
+
+**Summary**
+- Built a static HTML UX demo by adapting the reference into root index.html.
+- Fixed hover target, clarified disabled states, corrected modal close/scroll-lock, added focus states, status pill, and toast feedback.
+- Added idempotent test.sh smoke test and regenerated README.md with setup/run/test instructions.
+
+**Key files**
+- index.html – enhanced UI/UX and interaction fixes.
+- README.md – setup, dev server, and testing guidance.
+- test.sh – starts a local server and curls `http://localhost:$PORT` (defaults to 3000).
+
+**Tests (real)**
+- Python dev server check via PowerShell: `StatusCode : 200`.
+- `bash test.sh`: `Smoke test passed on http://localhost:3000`.
+
+**Run**
+- Start server: `python3 -m http.server 3000` (or `python` on Windows).
+- Smoke test: test.sh.
