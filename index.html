@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>UI Interaction Bug Demo - FIXED</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: linear-gradient(135deg, #0f172a, #020617);
+      color: #e5e7eb;
+      min-height: 100vh;
+    }
+
+    .page {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 24px 16px 64px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 32px;
+    }
+
+    .logo {
+      font-weight: 700;
+      font-size: 20px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #38bdf8;
+    }
+
+    .nav-button {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      padding: 12px 20px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      color: #e5e7eb;
+      cursor: pointer;
+      gap: 8px;
+    }
+
+    /* FIX 1: Hover region now applies to entire button, not just icon */
+    .nav-button:hover {
+      background: linear-gradient(135deg, #38bdf8, #a855f7);
+      color: #0b1120;
+    }
+
+    .nav-icon {
+      font-size: 16px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .nav-label {
+      font-size: 14px;
+    }
+
+    main {
+      background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.2), transparent 60%),
+                  radial-gradient(circle at bottom right, rgba(168, 85, 247, 0.18), transparent 55%);
+      border-radius: 24px;
+      padding: 32px 24px 28px;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.8);
+    }
+
+    .hero-title {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .hero-subtitle {
+      font-size: 14px;
+      color: #9ca3af;
+      margin-bottom: 24px;
+      max-width: 520px;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .primary-btn,
+    .secondary-btn {
+      border-radius: 999px;
+      padding: 12px 20px;
+      border: none;
+      font-size: 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+    }
+
+    .primary-btn {
+      background: linear-gradient(135deg, #38bdf8, #22c55e);
+      color: #0b1120;
+      box-shadow: 0 14px 30px rgba(34, 197, 94, 0.35);
+    }
+
+    .primary-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 20px 40px rgba(34, 197, 94, 0.45);
+    }
+
+    .secondary-btn {
+      background: rgba(15, 23, 42, 0.9);
+      color: #e5e7eb;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+    }
+
+    .secondary-btn:hover {
+      background: rgba(15, 23, 42, 1);
+      transform: translateY(-1px);
+      box-shadow: 0 16px 30px rgba(15, 23, 42, 0.9);
+    }
+
+    /* FIX 2: Disabled button state is now clearly distinguishable */
+    .primary-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      background: linear-gradient(135deg, #1e293b, #334155);
+      color: #64748b;
+      box-shadow: none;
+    }
+
+    .primary-btn:disabled:hover {
+      transform: none;
+      box-shadow: none;
+    }
+
+    .section {
+      background: rgba(15, 23, 42, 0.85);
+      border-radius: 18px;
+      padding: 20px 16px;
+      border: 1px solid rgba(148, 163, 184, 0.45);
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .section-body {
+      font-size: 13px;
+      color: #9ca3af;
+      line-height: 1.6;
+    }
+
+    .open-modal-btn {
+      margin-top: 12px;
+    }
+
+    /* Modal */
+
+    .modal-root {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 40;
+    }
+
+    .modal-root.visible {
+      display: flex;
+    }
+
+    .modal-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(6px);
+    }
+
+    .modal-content {
+      position: relative;
+      background: rgba(15, 23, 42, 0.98);
+      border-radius: 20px;
+      border: 1px solid rgba(148, 163, 184, 0.75);
+      padding: 20px 20px 16px;
+      max-width: 360px;
+      width: 100%;
+      box-shadow: 0 24px 50px rgba(15, 23, 42, 1);
+      z-index: 41;
+      animation: modalIn 0.16s ease-out;
+    }
+
+    @keyframes modalIn {
+      from {
+        transform: translateY(8px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .modal-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .modal-text {
+      font-size: 13px;
+      color: #9ca3af;
+      margin-bottom: 16px;
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      font-size: 11px;
+      color: #9ca3af;
+      margin-top: 4px;
+    }
+
+    .chip-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: #10b981;
+      box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.2);
+    }
+
+    @media (max-width: 640px) {
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+      }
+
+      main {
+        padding: 24px 18px 22px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <div class="logo">Interaction Lab</div>
+      <button class="nav-button" type="button">
+        <span class="nav-icon">★</span>
+        <span class="nav-label">Hover profile</span>
+      </button>
+    </header>
+
+    <main>
+      <h1 class="hero-title">UI Interaction Bug Sandbox - FIXED</h1>
+      <p class="hero-subtitle">
+        All interaction issues have been resolved: full-pill hover region, clear disabled button state,
+        and proper modal closing behavior with scroll restoration.
+      </p>
+
+      <div class="actions">
+
+        <button class="primary-btn" id="primaryAction" type="button" disabled>
+          <span>Run primary action</span>
+        </button>
+
+        <button class="secondary-btn open-modal-btn" id="openModalBtn" type="button">
+          <span>Open settings modal</span>
+        </button>
+      </div>
+
+      <section class="section">
+        <div class="section-title">Hover target mismatch - FIXED</div>
+        <div class="section-body">
+          The profile chip in the header now has hover highlight on the entire pill, not just the star icon.
+          The interactive area now matches the visual appearance.
+        </div>
+        <div class="chip">
+          <span class="chip-dot"></span>
+          <span>Fixed: hover area covers entire pill</span>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-title">Disabled action feedback - FIXED</div>
+        <div class="section-body">
+          The primary action button now clearly shows its disabled state with lower opacity, muted colors,
+          no hover effects, and a not-allowed cursor.
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-title">Modal closing behavior - FIXED</div>
+        <div class="section-body">
+          The settings modal now properly closes when clicking the dark backdrop or the close button,
+          and scroll is fully restored when the modal is closed.
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Modal structure - FIXED -->
+  <div class="modal-root" id="settingsModal" aria-hidden="true">
+    <div class="modal-backdrop" id="modalBackdrop"></div>
+    <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+      <div class="modal-title" id="settingsTitle">Settings</div>
+      <div class="modal-text">
+        This modal now properly closes when clicking the backdrop and restores scroll correctly.
+      </div>
+      <div class="modal-footer">
+        <button class="secondary-btn" type="button" id="closeModalBtn">
+          Close
+        </button>
+        <button class="primary-btn" type="button" id="fakeSaveBtn">
+          Fake save
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      var openModalBtn = document.getElementById("openModalBtn");
+      var closeModalBtn = document.getElementById("closeModalBtn");
+      var modalRoot = document.getElementById("settingsModal");
+      var modalBackdrop = document.getElementById("modalBackdrop");
+
+      function openModal() {
+        if (!modalRoot) return;
+        modalRoot.classList.add("visible");
+        // Lock scroll when modal is open
+        document.body.style.overflow = "hidden";
+      }
+
+      function closeModal() {
+        if (!modalRoot) return;
+        modalRoot.classList.remove("visible");
+        // FIX 3: Restore scroll when modal is closed
+        document.body.style.overflow = "";
+      }
+
+      if (openModalBtn) {
+        openModalBtn.addEventListener("click", openModal);
+      }
+
+      if (closeModalBtn) {
+        closeModalBtn.addEventListener("click", closeModal);
+      }
+
+      // FIX 3: Backdrop now properly closes modal when clicked
+      if (modalBackdrop) {
+        modalBackdrop.addEventListener("click", function (event) {
+          // Check if the click was directly on the backdrop (not on modal content)
+          if (event.target === modalBackdrop) {
+            closeModal();
+          }
+        });
+      }
+    })();
+  </script>
+</body>
+</html>
