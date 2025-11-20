@@ -1,0 +1,11 @@
+{
+  "name": "ui-interaction-bug-demo",
+  "version": "1.0.0",
+  "description": "Fixed UI interaction demo with automated Playwright coverage",
+  "scripts": {
+    "test": "npx playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.44.0"
+  }
+}

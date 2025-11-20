@@ -1,0 +1,7 @@
+# Changelog
+
+## 2025-11-20
+- Created a fresh `index.html` with fixed hover target, clearer disabled button styling, and reliable modal/backdrop logic that restores scroll.
+- Added Node project files (`package.json`, `playwright.config.js`) and Playwright tests (`tests/ui.spec.js`).
+- Added automation scripts (`setup.sh`, `run.sh`, `test.sh`) plus Dockerfile for reproducible setup/test runs.
+- Documented fixes and usage in `README.md`.
