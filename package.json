@@ -1,0 +1,17 @@
+{
+  "name": "ui-interaction-bug-demo-fixed",
+  "version": "1.0.0",
+  "description": "Fixed UI Interaction Bug Demo with Playwright tests",
+  "scripts": {
+    "test": "playwright test",
+    "test:ci": "playwright test --reporter=list",
+    "start": "python3 -m http.server 3000",
+    "lint": "echo 'No lint configured'"
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "playwright": "^1.48.0",
+    "@playwright/test": "^1.48.0"
+  }
+}
