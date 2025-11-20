@@ -1,51 +1,66 @@
-# UI Interaction Demo (Fixed)
+# UI Interaction Bug Demo (Fixed)
 
-A minimal static HTML/CSS/JS page demonstrating common interaction pitfalls and their fixes:
+This project is a fixed version of the static HTML UI in `input/`, with automated
+Playwright tests verifying the interaction bugs are resolved.
 
-- **Hover target alignment** — header pill now responds on the whole button (hover + focus).
-- **Disabled state clarity** — primary action visually distinct, non-interactive cursor, optional toggle to enable.
-- **Modal behavior** — backdrop/Escape close, scroll locking restored, focus managed, accessible ARIA attributes.
-- **Feedback** — toast notification on primary action, live status updates.
+## Interaction bugs & fixes
+1. **Hover region too small**
+	- **Problem:** Hover styling applied only to the star icon, not the whole pill.
+	- **Fix:** Apply hover/focus styles on `.nav-button` so the entire pill highlights.
 
-## Project Type
-Pure static HTML. No build step, no external dependencies.
+2. **Disabled button state unclear**
+	- **Problem:** Disabled primary button looked enabled (pointer cursor, hover lift).
+	- **Fix:** Distinct disabled styling (muted gradient, opacity, `cursor: not-allowed`, no hover transform/shadow).
+
+3. **Modal closing & scroll restore**
+	- **Problem:** Backdrop clicks didn’t close modal; scroll lock not restored.
+	- **Fix:** Backdrop/root click closes modal; `body.modal-open` locks scroll and is removed on close; Escape closes too.
+
+## Project structure
+```
+index.html           # Fixed UI
+tests/ui.spec.ts     # Playwright tests
+playwright.config.ts # Test config (baseURL http://localhost:3000)
+setup.sh             # Install deps + Playwright browsers
+run.sh               # Start static server (required command)
+test.sh              # Start server, run tests, clean up
+Dockerfile           # Reproducible environment (runs test.sh)
+Changelog            # Summary of changes
+```
+
+## Prerequisites
+- Node.js (>=18) with `npm`
+- Python 3 (`python3` on PATH)
+- `bash` and `curl`
+- (Optional) Docker
 
 ## Setup
-1. Ensure Python is available (`python3` or `python`).
-2. Clone or download this folder.
-
-## Run Dev Server
-From the project root:
-
 ```bash
-python3 -m http.server 3000
+./setup.sh
 ```
 
-### Windows PowerShell example
-```powershell
-python -m http.server 3000
+## Run server (port 3000)
+```bash
+./run.sh
+```
+This uses the required command:
+```
+nohup python3 -m http.server 3000 > /tmp/html.log 2>&1 &
 ```
 
-Then open http://localhost:3000 in your browser.
-
-## One-click Test
-A portable smoke test lives in `test.sh` and will start a local static server, then hit the page with `curl`.
-
+## Run tests
 ```bash
-chmod +x test.sh
 ./test.sh
 ```
+`test.sh` starts the server, waits for readiness, runs Playwright tests (headless Chromium), and cleans up.
 
-- Uses `$PORT` if set (default 3000).
-- Logs written to `/tmp/html_server.log` (override with `LOG_FILE`).
-- Exits non-zero on failure and prints log tail.
+## Docker
+```bash
+docker build -t ui-bugs .
+docker run --rm ui-bugs
+```
+The container installs dependencies, Playwright browsers, and runs `./test.sh`.
 
 ## Notes
-- Accessibility: focus-visible outlines, `aria-*` attributes, `prefers-reduced-motion` support.
-- Scroll lock: applied via `body.modal-open`; original body overflow restored on close.
-- Tested with Python 3. If using alternatives, adjust commands accordingly.
-
-## Changelog
-- Added `index.html` with fixed interactions and enhanced UX.
-- Added idempotent `test.sh` smoke test.
-- Regenerated this `README.md` with setup and testing instructions.
+- Do **not** modify `input/`; `index.html` in the repo is the fixed copy.
+- Tests validate: full pill hover, disabled button visual/behavior, backdrop closes modal and scroll is restored.

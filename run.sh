@@ -18,16 +18,9 @@ ROOT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 export PATH="$ROOT_DIR:$PATH"
 cd "$ROOT_DIR"
 
-if [ ! -d node_modules ]; then
-  echo "node_modules not found. Running setup.sh..."
-  ./setup.sh
-fi
-
-# Clean any stale server pid
+# Start static server using required command
+echo "Starting static server on port 3000..."
 cleanup
-
-# Clear previous log
-rm -f /tmp/html.log
 
 # Resolve python3 explicitly to avoid ambiguous wrappers
 PYTHON_CMD=$(command -v python3 || true)
@@ -45,7 +38,6 @@ if [ -z "$PYTHON_CMD" ]; then
   exit 1
 fi
 
-# Start server
 nohup "$PYTHON_CMD" -m http.server 3000 > /tmp/html.log 2>&1 &
 SERVER_PID=$!
 echo $SERVER_PID > /tmp/server.pid
@@ -54,19 +46,12 @@ echo "Waiting for server to be ready..."
 for i in {1..30}; do
   if curl -sSf http://localhost:3000 >/dev/null 2>&1; then
     echo "Server is up (PID $SERVER_PID)."
-    break
+    wait $SERVER_PID
+    exit 0
   fi
   sleep 1
 done
 
-if ! kill -0 "$SERVER_PID" >/dev/null 2>&1; then
-  echo "Server failed to start." >&2
-  exit 1
-fi
-
-# Run Playwright tests
-npx playwright test
-TEST_EXIT_CODE=$?
-
-# Cleanup
-exit $TEST_EXIT_CODE
+echo "Server failed to start within timeout."
+kill "$SERVER_PID" >/dev/null 2>&1 || true
+exit 1

@@ -1,0 +1,7 @@
+# Changelog
+
+- Added fixed `index.html` addressing hover region, disabled button clarity, and modal/backdrop/scroll behavior.
+- Added Playwright tests (`tests/ui.spec.ts`) and config (`playwright.config.ts`).
+- Created scripts: `setup.sh`, `run.sh`, `test.sh` with robust server handling.
+- Added Dockerfile, .dockerignore, tsconfig, and project README.
+- Ensured reproducible setup, run, and test workflows.
