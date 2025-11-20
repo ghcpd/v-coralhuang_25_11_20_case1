@@ -1,0 +1,21 @@
+{
+  "name": "ui-interaction-bug-demo",
+  "version": "1.0.0",
+  "description": "Fixed UI interaction bugs with automated Playwright tests",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:ui": "playwright test --ui",
+    "test:report": "playwright show-report"
+  },
+  "keywords": [
+    "ui",
+    "testing",
+    "playwright"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@playwright/test": "^1.40.0"
+  }
+}
