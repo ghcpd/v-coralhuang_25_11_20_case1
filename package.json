@@ -1,0 +1,13 @@
+{
+  "name": "ui-interaction-bug-demo-fixed",
+  "version": "1.0.0",
+  "description": "Fixed UI interaction demo with Playwright tests",
+  "scripts": {
+    "setup": "node ./scripts/setup.js",
+    "start": "nohup python3 -m http.server 3000 > /tmp/html.log 2>&1 &",
+    "test": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.40.0"
+  }
+}
